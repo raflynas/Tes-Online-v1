@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Tes Online</title>
+        <style>
+            body {
+                font-family:Arial, sans-serif;
+                background:#f5f7fb;
+                margin:0
+            }
+            .container {    
+                max-width:900px;
+                margin:auto;
+                padding:20px
+            }
+            .card {
+                background:white;
+                padding:20px;
+                border-radius:12px;
+                box-shadow:0 4px 12px rgba(0,0,0,.1)
+            }
+            textarea {
+                width:100%;
+                height:200px
+            }
+            button {
+                padding:10px 16px;
+                border:none;
+                border-radius:8px;
+                background:#2563eb;
+                color:white;
+                font-weight:bold;
+                cursor:pointer
+            }
+            .question {
+                margin-bottom:20px
+            }
+            .option {
+                display:block;
+                margin:6px 0
+            }
+            #result {
+                font-size:22px;
+                font-weight:bold;
+                text-align:center
+                }
+        </style>
+    </head>
+
+    <body>
+        <div class="container">
+            <h2>Input Paket Soal (JSON)</h2>
+            <div class="card">
+                <p>Format JSON:</p>
+                <pre>
+                    [
+                    {"q":"Ibukota Indonesia?","options":["Bandung","Jakarta","Surabaya","Medan"],"answer":1,"score":5}
+                    ]
+                </pre>
+                <textarea id="input"></textarea>
+                <br><br>
+                <button onclick="loadQuestions()">Mulai Tes</button>
+            </div>
+
+                <div id="quiz" class="card" style="display:none"></div>
+                <div id="result" class="card" style="display:none"></div>
+        </div>
+
+        <script>
+            let questions=[];
+            let current=0;
+            let totalScore=0;
+
+            function loadQuestions(){
+                try{
+                questions = JSON.parse(document.getElementById('input').value);
+                if(!Array.isArray(questions)) throw 'Format salah';
+                current=0; totalScore=0;
+                document.getElementById('quiz').style.display='block';
+                showQuestion();
+                }catch(e){alert('JSON tidak valid!')}
+            }
+
+            function showQuestion(){
+                if(current>=questions.length){
+                document.getElementById('quiz').style.display='none';
+                document.getElementById('result').style.display='block';
+                document.getElementById('result').innerHTML=`Tes selesai 🎉<br>Total Score: ${totalScore}`;
+                return;
+                }
+                let q=questions[current];
+                let html=`<div class='question'><h3>Soal ${current+1}</h3><p>${q.q}</p>`;
+                q.options.forEach((opt,i)=>{
+                html+=`<label class='option'><input type='radio' name='ans' value='${i}'> ${opt}</label>`;
+                });
+                html+=`<br><button onclick='submitAnswer()'>Jawab</button></div>`;
+                document.getElementById('quiz').innerHTML=html;
+            }
+
+            function submitAnswer(){
+                let ans=document.querySelector('input[name="ans"]:checked');
+                if(!ans){alert('Pilih jawaban dulu!');return}
+                let q=questions[current];
+                if(parseInt(ans.value)===q.answer) totalScore+=q.score;
+                current++;
+                showQuestion();
+            }
+        </script>
+    </body>
+</html>
